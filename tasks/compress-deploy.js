@@ -119,7 +119,7 @@ module.exports = function(grunt) {
       // list all files in directory
       // filter out excluded ones
       // execute rm -rf for every entry left
-      var command = 'cd '+getRootPath(options)+' && ls -a | grep -v "^\\('+clean_exclusions.join('\\|')+'\\) | xargs rm -rf';
+      var command = 'cd '+getRootPath(options)+' && ls -a | grep -v "^\\('+clean_exclusions.join('\\|')+'\\)$" | xargs rm -rf';
 
       grunt.log.write('Cleaning dest directory');
 

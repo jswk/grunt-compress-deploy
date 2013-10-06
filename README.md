@@ -17,19 +17,25 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('grunt-compress-deploy');
 ```
 
-## The "compress_deploy" task
+## The "compress-deploy" task
 
-### Overview
-In your project's Gruntfile, add a section named `compress_deploy` to the data object passed into `grunt.initConfig()`.
+## Usage
+In your project's Gruntfile, add a section named `compress-deploy` to the data object passed into `grunt.initConfig()`.
 
 ```js
 grunt.initConfig({
-  compress_deploy: {
-    options: {
-      // Task-specific options go here.
-    },
+  compress-deploy: {
     your_target: {
-      // Target-specific file lists and/or options go here.
+      src : "/path/to/build",
+      dest : "/path/on/server",
+      server_sep : "/",
+      clean : true,
+      clean_exclusions : ['important', 'dont.touch'],
+      auth: {
+        host : 'yourdomain.com',
+        port : 22,
+        authKey : 'yourdomain.com'
+      }.
     },
   },
 })
@@ -37,50 +43,70 @@ grunt.initConfig({
 
 ### Options
 
-#### options.separator
+#### src
 Type: `String`
-Default value: `',  '`
 
-A string value that is used to do something with whatever.
+Directory, which will be transfered to the server.
 
-#### options.punctuation
+#### dest
 Type: `String`
-Default value: `'.'`
 
-A string value that is used to do something else with whatever else.
+Path to place on your server where the project should be put.
 
-### Usage Examples
+#### server_sep
+Type: `String`
+Default value: `path.sep`
 
-#### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+What path separator your server uses?
 
-```js
-grunt.initConfig({
-  compress_deploy: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
+#### clean
+Type: `Boolean`
+Default value: `false`
+
+Determines whether to clean location on server before putting there the new version.
+
+#### clean_exclusions
+Type: `Array<String>`
+Default value: `[]`
+
+What elements must be preserved from the cleaning. Won't work if in `src` directory are files of the same names.
+
+#### auth
+
+Usernames, passwords, and private key references are stored as a JSON object in a file named `.ftppass`. This file should be omitted from source control. It uses the following format:
+
+```javascript
+{
+  "key1": {
+    "username": "username1",
+    "password": "password1"
   },
-})
+  "key2": {
+    "username": "username2",
+    "password": "password2"
+  },
+  "privateKey": {
+    "username": "username"
+  },
+  "privateKeyEncrypted": {
+    "username": "username",
+    "passphrase": "passphrase1"
+  },
+  "privateKeyCustom": {
+    "username": "username",
+    "passphrase": "passphrase1",
+    "keyLocation": "/full/path/to/key"
+  }
+}
 ```
 
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
+If `keyLocation` is not specified, `grunt-compress-deploy` looks for keys at `~/.ssh/id_dsa` and `/.ssh/id_rsa`.
 
-```js
-grunt.initConfig({
-  compress_deploy: {
-    options: {
-      separator: ': ',
-      punctuation: ' !!!',
-    },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-})
-```
+You can supply passwords for encrypted keys with the `passphrase` attribute.
+
+This way we can save as many username / password combinations as we want and look them up by the `authKey` value defined in the _grunt_ config file where the rest of the target parameters are defined.
+
+
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
