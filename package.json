@@ -1,0 +1,47 @@
+{
+  "name": "grunt-compress-deploy",
+  "description": "Makes it easy and fast to deploy your project",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jswk/grunt-compress-deploy",
+  "author": {
+    "name": "Jakub Sawicki",
+    "email": "kuba@jswk.pl",
+    "url": "jswk.pl"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jswk/grunt-compress-deploy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jswk/grunt-compress-deploy/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/jswk/grunt-compress-deploy/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "Gruntfile.js",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt": "~0.4.1",
+    "tar.gz": "~0.1.1",
+    "step": "0.0.5",
+    "ssh2": "~0.2.12",
+    "extend": "~1.2.1"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.1"
+  },
+  "keywords": [
+    "gruntplugin"
+  ]
+}
