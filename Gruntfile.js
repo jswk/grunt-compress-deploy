@@ -38,7 +38,7 @@ module.exports = function(grunt) {
         dest : "/home/frozen/tmp/compress-deploy",
         server_sep : "/",
         clean : true,
-        clean_exclusions : ['important', 'dont.touch'],
+        exclusions : ['important', 'dont.touch'],
         auth: {
           host : 'jswk.pl',
           port : 22,

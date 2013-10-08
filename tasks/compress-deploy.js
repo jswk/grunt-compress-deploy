@@ -28,7 +28,7 @@ module.exports = function(grunt) {
       src : null,
       dest : null,
       clean : false,
-      clean_exclusions : [],
+      exclusions : [],
       server_sep : path.sep,
       archive_name : 'tmp.tar.gz',
       auth: null
@@ -40,14 +40,51 @@ module.exports = function(grunt) {
       },
       compressSrc,
       createConnection,
+      fixPermissions,
       cleanDest,
       deployArchive,
       extractArchive,
       cleanArchive,
+      fixPermissions,
       closeConnection,
       this.async()
     );
   });
+
+  function handleCommand(ssh, command, message, cb) {
+    var fail = function (message) {
+      grunt.log.write(' failed'.red + '\n');
+      grunt.warn(''+message);
+    };
+
+    grunt.log.write(message);
+
+    ssh.exec(command, function (err, stream) {
+      if (err) {
+        fail(err);
+      }
+
+      stream.on('data', function (data, extended) {
+        if (extended === 'stderr') {
+          grunt.log.write(' failed'.red + '\n');
+          grunt.warn(''+data);
+        } else {
+          grunt.log.write(''+data);
+        }
+      });
+
+      stream.on('exit', function (code, signal) {
+        if (code !== 0) {
+          fail(command+"\nReturn code: "+code);
+        }
+
+        cb(function () {
+          grunt.log.write(' done'.green + '\n');
+        }, fail);
+      });
+
+    });
+  }
 
   function compressSrc(options) {
     var self = this;
@@ -102,33 +139,36 @@ module.exports = function(grunt) {
     return remoteRoot;
   }
 
+  function getExcludedItems(options, folder) {
+    var exclusions = options.exclusions,
+        remoteSep = options.server_sep;
+
+    // filter out dir and parent dir positions as well
+    folder === true && (exclusions = exclusions.concat(['.','..','.'+remoteSep,'..'+remoteSep]));
+    // as basic regex support in grep leaves only the function of '.' unchanged
+    // plain dots must be preceded by backslash
+    exclusions = exclusions.map(function (name) { return name.replace(/\./g, '\\.') });
+
+    return exclusions;
+  }
+
   function cleanDest(options, ssh) {
     var self             = this,
         clean            = options.clean,
-        clean_exclusions = options.clean_exclusions,
+        exclusions = getExcludedItems(options, true),
         remoteSep        = options.server_sep;
 
     if (!clean) {
       this(options, ssh);
     } else {
-      // filter out dir and parent dir positions as well
-      clean_exclusions = clean_exclusions.concat(['.','..','.'+remoteSep,'..'+remoteSep]);
-      // as basic regex support in grep leaves only the function of '.' unchanged
-      // plain dots must be preceded by backslash
-      clean_exclusions = clean_exclusions.map(function (name) { return name.replace('.', '\\.', 'g')});
       // list all files in directory
       // filter out excluded ones
       // execute rm -rf for every entry left
-      var command = 'cd '+getRootPath(options)+' && ls -a | grep -v "^\\('+clean_exclusions.join('\\|')+'\\)$" | xargs rm -rf';
+      var command = 'cd '+getRootPath(options)+' && '+
+                    'ls -a | grep -v "^\\('+exclusions.join('\\|')+'\\)$" | xargs rm -rf';
 
-      grunt.log.write('Cleaning dest directory');
-
-      ssh.exec(command, function (err, stream) {
-        if (err) {
-          grunt.warn(err);
-        }
-
-        grunt.log.write(' done'.green + '\n');
+      handleCommand(ssh, command, 'Cleaning dest directory', function (done) {
+        done();
         self(options, ssh);
       });
     }
@@ -183,54 +223,60 @@ module.exports = function(grunt) {
   function extractArchive(options, ssh) {
     var self = this;
 
-    grunt.log.write('Decompressing the archive');
-
     var command = 'cd '+getRootPath(options)+' && '+
-                  'tar -xzf ' + options.archive_name + ' --strip-components 1 && '+
-                  'find -type d -print0 | xargs -0 chmod 755 && '+
-                  'find -type f -print0 | xargs -0 chmod 644';
+                  'tar -xzf ' + options.archive_name + ' --strip-components 1';
 
-    ssh.exec(command, function (err, stream) {
-      if (err) {
-        grunt.warn(err);
-      }
-
-      grunt.log.write(' done'.green + '\n');
+    handleCommand(ssh, command, 'Decompressing the archive', function (done) {
+      done();
       self(options, ssh);
     });
   }
 
   function cleanArchive(options, ssh) {
-    var self = this;
+    var self = this,
+        command = 'cd '+getRootPath(options)+' && rm ' + options.archive_name;
 
-    grunt.log.write('Removing archive from local and server');
-
-    ssh.exec('cd '+getRootPath(options)+' && rm ' + options.archive_name, function (err) {
-      if (err) {
-        grunt.warn(err);
-      }
-
+    handleCommand(ssh, command, 'Removing archive from local and server', function (done, fail) {
       fs.unlink(path.resolve(options.archive_name), function (err) {
         if (err) {
-          grunt.warn(err);
+          fail(err);
         }
 
-        grunt.log.write(' done'.green + '\n');
+        done();
         self(options, ssh);
-      })
+      });
+    });
+  }
+
+  function fixPermissions(options, ssh) {
+    var self = this,
+        remoteSep = options.server_sep;
+
+    var grep1 = 'grep -v "^\\('+getExcludedItems(options, true).join('\\|')+'\\)$"';
+    var grep2 = 'grep -v "^\\('+getExcludedItems(options).map(function (file) {
+      return '\\.\\'+remoteSep+file;
+    }).join('\\|')+'\\)$"';
+
+    // list all files in directory
+    // filter out excluded ones
+    // execute rm -rf for every entry left
+    var command = 'cd '+getRootPath(options)+' && '+
+                  'ls -a | '+grep1+' | xargs chmod -R 755 && '+
+                  'find -type f | '+grep2+' | xargs chmod 644';
+
+    handleCommand(ssh, command, 'Fixing permissions', function (done) {
+      done();
+      self(options, ssh);
     });
   }
 
   function closeConnection(options, ssh) {
     var self = this;
 
-    ssh.on('close', function (had_error) {
-      //console.log('Connection :: close', had_error);
 
-      self();
-    });
+    //ssh.end();
 
-    ssh.end();
+    self();
   }
 
   function getAuthByKey(inKey) {

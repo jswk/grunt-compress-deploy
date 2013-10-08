@@ -30,7 +30,7 @@ grunt.initConfig({
       dest : "/path/on/server",
       server_sep : "/",
       clean : true,
-      clean_exclusions : ['important', 'dont.touch'],
+      exclusions : ['important', 'dont.touch'],
       auth: {
         host : 'yourdomain.com',
         port : 22,
@@ -65,7 +65,7 @@ Default value: `false`
 
 Determines whether to clean location on server before putting there the new version.
 
-#### clean_exclusions
+#### exclusions
 Type: `Array<String>`
 Default value: `[]`
 
