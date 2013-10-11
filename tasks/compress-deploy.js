@@ -66,8 +66,7 @@ module.exports = function(grunt) {
 
       stream.on('data', function (data, extended) {
         if (extended === 'stderr') {
-          grunt.log.write(' failed'.red + '\n');
-          grunt.warn(''+data);
+          fail(command+'\n'+data);
         } else {
           grunt.log.write(''+data);
         }
@@ -165,7 +164,7 @@ module.exports = function(grunt) {
       // filter out excluded ones
       // execute rm -rf for every entry left
       var command = 'cd '+getRootPath(options)+' && '+
-                    'ls -a | grep -v "^\\('+exclusions.join('\\|')+'\\)$" | xargs rm -rf';
+                    'ls -a | grep -v "^\\('+exclusions.join('\\|')+'\\)$" | tr "\\n" "\\0" | xargs -0 rm -rf';
 
       handleCommand(ssh, command, 'Cleaning dest directory', function (done) {
         done();
@@ -206,14 +205,28 @@ module.exports = function(grunt) {
         //console.log('SFTP :: open');
       });
 
-      grunt.log.write('Transferring ' + src + ' to ' + dest);
+      grunt.log.write('Transferring ' + src + ' to ' + dest + '\n');
 
-      sftp.fastPut(src, dest, function (err) {
+      var pace = require('pace')({
+        total : fs.statSync(src).size,
+        texts : {
+          info : "",
+          unit : " bytes",
+          finished : "Upload completed successfully\n".green
+        }
+      });
+
+      sftp.fastPut(src, dest, {
+        step: function (transferred, chunk, total) {
+          pace.total = total;
+          pace.op(transferred);
+        }
+      }, function (err) {
         if (err) {
           grunt.warn('SFTP :: PUT :: ' + err);
         }
 
-        grunt.log.write(' done'.green + '\n');
+        //grunt.log.write(' done'.green + '\n');
 
         sftp.end();
       })
@@ -261,8 +274,8 @@ module.exports = function(grunt) {
     // filter out excluded ones
     // execute rm -rf for every entry left
     var command = 'cd '+getRootPath(options)+' && '+
-                  'ls -a | '+grep1+' | xargs chmod -R 755 && '+
-                  'find -type f | '+grep2+' | xargs chmod 644';
+                  'ls -a | '+grep1+' | tr "\\n" "\\0" | xargs -0 chmod -R 755 && '+
+                  'find -type f | '+grep2+' | tr "\\n" "\\0" | xargs -0 chmod 644';
 
     handleCommand(ssh, command, 'Fixing permissions', function (done) {
       done();
@@ -273,8 +286,7 @@ module.exports = function(grunt) {
   function closeConnection(options, ssh) {
     var self = this;
 
-
-    //ssh.end();
+    ssh.end();
 
     self();
   }
