@@ -209,6 +209,7 @@ module.exports = function(grunt) {
 
       var pace = require('pace')({
         total : fs.statSync(src).size,
+        maxBurden : 10,
         texts : {
           info : "",
           unit : " bytes",
