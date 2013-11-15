@@ -266,11 +266,7 @@ module.exports = function(grunt) {
     var self = this,
         remoteSep = options.server_sep;
 
-    var folders = ['.','..','.\\'+remoteSep, '..\\'+remoteSep];
-
-    var grep1 = 'grep -v "^\\(\\'+folders.map(function (file) {
-      return file+'$';
-    }).join('\\|')+'('+getExcludedItems(options, true).join('\\|')+'\\)\\($\\|\\'+remoteSep+'\\)\\)"';
+    var grep1 = 'grep -v "^\\('+getExcludedItems(options, true).join('\\|')+'\\)$"';
     var grep2 = 'grep -v "^\\('+getExcludedItems(options).map(function (file) {
       return '\\.\\'+remoteSep+file;
     }).join('\\|')+'\\($\\|\\'+remoteSep+'\\)\\)"';
