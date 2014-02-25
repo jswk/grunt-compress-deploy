@@ -25,24 +25,24 @@ module.exports = function(grunt) {
     "compress-deploy" : {
       test_1 : {
         src : "test/dist",
-        dest : "/home/frozen/tmp/compress-deploy",
+        dest : "/home/savi/tmp/compress-deploy",
         server_sep : "/",
         auth: {
-          host : 'jswk.pl',
+          host : 'localhost',
           port : 22,
-          authKey : 'jswk.pl'
+          authKey : 'localhost'
         }
       },
       test_2 : {
         src : "test/dist",
-        dest : "/home/frozen/tmp/compress-deploy",
+        dest : "/home/savi/tmp/compress-deploy",
         server_sep : "/",
         clean : true,
         exclusions : ['important', 'dont.touch'],
         auth: {
-          host : 'jswk.pl',
+          host : 'localhost',
           port : 22,
-          authKey : 'jswk.pl'
+          authKey : 'localhost'
         }
       }
     }

@@ -6,8 +6,6 @@
  * Licensed under the MIT license.
  */
 
-'use strict';
-
 module.exports = function(grunt) {
 
   var extend = require('extend'),
@@ -164,7 +162,7 @@ module.exports = function(grunt) {
       // filter out excluded ones
       // execute rm -rf for every entry left
       var command = 'cd '+getRootPath(options)+' && '+
-                    'ls -a | grep -v "^\\('+exclusions.join('\\|')+'\\)$" | tr "\\n" "\\0" | xargs -0 rm -rf';
+                    'ls -a | grep -v "^\\('+exclusions.join('\\|')+'\\)$" | tr "\\n" "\\0" | xargs --no-run-if-empty -0 rm -rf';
 
       handleCommand(ssh, command, 'Cleaning dest directory', function (done) {
         done();
@@ -271,12 +269,9 @@ module.exports = function(grunt) {
       return '\\.\\'+remoteSep+file;
     }).join('\\|')+'\\($\\|\\'+remoteSep+'\\)\\)"';
 
-    // list all files in directory
-    // filter out excluded ones
-    // execute rm -rf for every entry left
     var command = 'cd '+getRootPath(options)+' && '+
-                  'ls -a | '+grep1+' | tr "\\n" "\\0" | xargs -0 chmod -R 755 && '+
-                  'find -type f | '+grep2+' | tr "\\n" "\\0" | xargs -0 chmod 644';
+                  'ls -a | '+grep1+' | tr "\\n" "\\0" | xargs --no-run-if-empty -0 chmod -R 755 && '+
+                  'find -type f | '+grep2+' | tr "\\n" "\\0" | xargs --no-run-if-empty -0 chmod 644';
 
     handleCommand(ssh, command, 'Fixing permissions', function (done) {
       done();
