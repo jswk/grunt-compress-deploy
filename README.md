@@ -30,6 +30,7 @@ grunt.initConfig({
       dest : "/path/on/server",
       server_sep : "/",
       clean : true,
+	  touch : false,
       exclusions : ['important', 'dont.touch'],
       auth: {
         host : 'yourdomain.com',
@@ -64,6 +65,12 @@ Type: `Boolean`
 Default value: `false`
 
 Determines whether to clean location on server before putting there the new version.
+
+#### touch
+Type: `Boolean`
+Default value: `false`
+
+Set to true to prevent extraction of file modified time. 
 
 #### exclusions
 Type: `Array<String>`
