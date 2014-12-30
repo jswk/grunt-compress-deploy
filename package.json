@@ -1,7 +1,7 @@
 {
   "name": "grunt-compress-deploy",
   "description": "Makes it easy and fast to deploy your project",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "homepage": "https://github.com/jswk/grunt-compress-deploy",
   "author": {
     "name": "Jakub Sawicki",

@@ -25,10 +25,11 @@ module.exports = function(grunt) {
     var options = extend({
       src : null,
       dest : null,
+      server_sep : path.sep,
       clean : false,
       touch : false,
       exclusions : [],
-      server_sep : path.sep,
+      proprietary : false,
       archive_name : 'tmp.tar.gz',
       auth: null
     }, this.data);
@@ -89,7 +90,16 @@ module.exports = function(grunt) {
 
     grunt.log.write('Compressing ' + options.src + ' to ' + options.archive_name);
 
-    new Targz().compress(path.resolve(options.src), path.resolve(options.archive_name), function (err) {
+    var targz;
+    if (options.proprietary) {
+        targz = new Targz();
+    } else {
+        // solves issue #1: targz with proprietary headers doesn't work
+        // properly if deploying from MAC OS X 10.9 to a Linux server
+        targz = new Targz(6, 6, false);
+    }
+
+    targz.compress(path.resolve(options.src), path.resolve(options.archive_name), function (err) {
       if (err) {
         grunt.warn(err);
       }

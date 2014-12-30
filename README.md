@@ -78,6 +78,20 @@ Default value: `[]`
 
 What elements must be preserved from the cleaning. Won't work if in `src` directory are files of the same names.
 
+#### proprietary
+Type: `Boolean`
+Default value: `false`
+
+If set to `true` targz is initialized with proprietary headers.
+Such behaviour causes errors if archive is created on a Mac OS X machine and
+deployed to a Linux server. See issue #3 for more information.
+
+#### archive_name
+Type: `String`
+Default value: `tmp.tar.gz`
+
+Name of the created and transferred archive.
+
 #### auth
 
 Usernames, passwords, and private key references are stored as a JSON object in a file named `.ftppass`. This file should be omitted from source control. It uses the following format:
