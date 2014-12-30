@@ -30,7 +30,7 @@ grunt.initConfig({
       dest : "/path/on/server",
       server_sep : "/",
       clean : true,
-	  touch : false,
+      touch : false,
       exclusions : ['important', 'dont.touch'],
       auth: {
         host : 'yourdomain.com',

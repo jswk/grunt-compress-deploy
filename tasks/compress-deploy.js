@@ -26,6 +26,7 @@ module.exports = function(grunt) {
       src : null,
       dest : null,
       clean : false,
+      touch : false,
       exclusions : [],
       server_sep : path.sep,
       archive_name : 'tmp.tar.gz',
