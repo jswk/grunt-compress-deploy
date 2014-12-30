@@ -234,9 +234,10 @@ module.exports = function(grunt) {
 
   function extractArchive(options, ssh) {
     var self = this;
+    var touchOption = options.touch ? 'm' : '';
 
     var command = 'cd '+getRootPath(options)+' && '+
-                  'tar -xzf ' + options.archive_name + ' --strip-components 1';
+                  'tar -' + touchOption + 'xzf ' + options.archive_name + ' --strip-components 1';
 
     handleCommand(ssh, command, 'Decompressing the archive', function (done) {
       done();
