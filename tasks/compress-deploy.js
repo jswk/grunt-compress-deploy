@@ -27,6 +27,7 @@ module.exports = function(grunt) {
       dest : null,
       server_sep : path.sep,
       clean : false,
+      createDir : false,
       touch : false,
       exclusions : [],
       proprietary : false,
@@ -281,9 +282,12 @@ module.exports = function(grunt) {
       return '\\.\\'+remoteSep+file;
     }).join('\\|')+'\\($\\|\\'+remoteSep+'\\)\\)"';
 
-    var command = 'cd '+getRootPath(options)+' && '+
-                  'ls -a | '+grep1+' | tr "\\n" "\\0" | xargs --no-run-if-empty -0 chmod -R 755 && '+
-                  'find -type f | '+grep2+' | tr "\\n" "\\0" | xargs --no-run-if-empty -0 chmod 644';
+    var path = getRootPath(options);
+
+	var command = options.createDir ? 'mkdir -p ' + path + ' && ' : '';
+	command += 'cd '+ path +' && '+
+               'ls -a | '+grep1+' | tr "\\n" "\\0" | xargs --no-run-if-empty -0 chmod -R 755 && '+
+               'find -type f | '+grep2+' | tr "\\n" "\\0" | xargs --no-run-if-empty -0 chmod 644';
 
     handleCommand(ssh, command, 'Fixing permissions', function (done) {
       done();
