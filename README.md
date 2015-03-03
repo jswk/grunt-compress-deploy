@@ -59,7 +59,9 @@ Path to place on your server where the project should be put.
 Type: `Boolean`
 Default value: `false`
 
-Set to true to create the dest directory when extracting the new version. Note: if the dest directory does not exist an error will be returned and deploy aborted.
+Set to true to create the dest directory when extracting the new version. In
+case it is set to `false` and the dest directory does not exist an error will
+be returned and deploy aborted.
 
 #### server_sep
 Type: `String`
